@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  texlive-ondemand:
+    build:
+      context: ./texlive-ondemand
+      dockerfile: Dockerfile
+    container_name: texlive-ondemand-app
+    ports:
+      - "5002:5002"
+    restart: unless-stopped
+
+  static-server:
+    image: python:3.9-slim
+    container_name: static-server
+    # Mount the entire outer folder into /usr/src/app in the container
+    volumes:
+      - ./:/usr/src/app:ro
+    working_dir: /usr/src/app
+    command: >
+      python3 -m http.server 8002 --bind 0.0.0.0
+    ports:
+      - "8002:8002"
+    restart: unless-stopped

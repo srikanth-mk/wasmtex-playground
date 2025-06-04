@@ -132,16 +132,14 @@ Hello World!
             return;
         }
 
-        if (!mainTexFileName) {
-            alert("No LaTeX file selected.");
-            return;
-        }
-
         compileBtn.disabled = true;
         compileBtn.innerHTML = "Compiling...";
 
-        globalEn.writeMemFSFile(mainTexFileName, editor.getValue());
-        globalEn.setEngineMainFile(mainTexFileName);
+        // If no file is selected, use default filename and compile the editor content
+        const fileNameToUse = mainTexFileName || "main.tex";
+        
+        globalEn.writeMemFSFile(fileNameToUse, editor.getValue());
+        globalEn.setEngineMainFile(fileNameToUse);
 
         for (let [filename, data] of Object.entries(uploadedImages)) {
             globalEn.writeMemFSFile(filename, data);

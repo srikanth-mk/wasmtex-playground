@@ -1,4 +1,4 @@
 test/
-wasm-builder/
+wasm-builder/pdftex.wasm/build/
 neopdftex.js
 neopdftex.wasm

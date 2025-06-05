@@ -262,7 +262,7 @@ git pull
 ```
 5. Make the latest" SDK "active" for the current user. (writes .emscripten file)
 ```
-./emsdk activate install 3.1.46
+./emsdk activate 3.1.46
 ```
 6. Activate PATH and other environment variables in the current terminal
 ```

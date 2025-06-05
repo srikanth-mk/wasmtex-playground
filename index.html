@@ -154,7 +154,7 @@ Hello World!
 
         try {
             console.log("Fetching default-assets.zip...");
-            const response = await fetch('https://github.com/srikanth-mk/wasmtex-playground/releases/tag/v0.0.1/default-assets.zip');
+            const response = await fetch('https://github.com/srikanth-mk/wasmtex-playground/releases/download/v0.0.1/default-assets.zip');
             
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);

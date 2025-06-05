@@ -13,6 +13,12 @@ This work is **inspired by SwiftLaTeX**, an innovative browser-based LaTeX edito
 - **Improved Console Output**: More detailed compilation logs and error reporting
 - **Optimized Docker Deployment**: Streamlined containerization for easier deployment and scaling
 
+## Demo
+
+![WASMTeX Playground Demo](demo/wasmtex-demo.mp4)
+
+*Live demonstration of LaTeX editing and compilation in the browser*
+
 ## Features
 
 - **Real-time LaTeX editing** with syntax highlighting

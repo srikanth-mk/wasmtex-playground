@@ -2,13 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>XeTeX basic example</title>
-    <meta name="description" content="">
+    <title>WASMTeX Playground - Test WASM LaTeX Compilation</title>
+    <meta name="description" content="Test your LaTeX documents with WebAssembly-powered compilation">
     <meta name="author" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
-        .container {
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .app-header {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+            z-index: 100;
+        }
+        .main-content {
             margin: 20px;
+        }
+        .container {
+            margin: 20px 0;
             width: 100%;
             display: flex;
             flex-direction: row;
@@ -38,38 +54,73 @@
         .error {
             color: #ff0000;
         }
-
+        .controls {
+            margin: 1rem 0;
+        }
+        .controls button {
+            margin: 0 0.3rem 0.3rem 0;
+            padding: 0.3rem 0.6rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+        .controls button:hover {
+            background: #5a67d8;
+        }
+        .controls button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .file-upload {
+            margin: 1rem 0;
+        }
+        .file-upload input[type="file"] {
+            margin: 0.5rem 0;
+        }
     </style>
 </head>
 <body class="code-snippets-visible">
 
-<h4>Upload your LaTeX dataset folder (.tex + .jpg files):</h4>
-<input type="file" id="datasetInput" webkitdirectory directory multiple><br><br>
+<header class="app-header">
+    WASMTeX Playground
+</header>
 
-<button type="button" onclick="createFormat()">Create Format</button>
-<button type="button" onclick="compile()" id="compilebtn" disabled>Initializing</button>
-<button id="downloadBtn">Download PDF</button>
-<button type="button" onclick="loadDefaultAssets()" id="loadAssetsBtn">Reload Default Assets</button>
+<div class="main-content">
+    <div class="file-upload">
+        <h4>Upload your LaTeX dataset folder (.tex + .jpg files):</h4>
+        <input type="file" id="datasetInput" webkitdirectory directory multiple>
+    </div>
 
-<div class="asset-status" id="assetStatus">
-    <strong>Default Assets:</strong> <span id="assetStatusText">Loading...</span>
-</div>
+    <div class="controls">
+        <button type="button" onclick="createFormat()">Create Format</button>
+        <button type="button" onclick="compile()" id="compilebtn" disabled>Initializing</button>
+        <button id="downloadBtn">Download PDF</button>
+        <button type="button" onclick="loadDefaultAssets()" id="loadAssetsBtn">Reload Default Assets</button>
+    </div>
 
-<div class="container" id="demo">
-    <div class="editor" id="editor">
-        <div id="editor">
+    <div class="asset-status" id="assetStatus">
+        <strong>Default Assets:</strong> <span id="assetStatusText">Loading...</span>
+    </div>
+
+    <div class="container" id="demo">
+        <div class="editor" id="editor">
+            <div id="editor">
 \documentclass{article}
 \usepackage{graphicx}
 \begin{document}
 Hello World!
 \end{document}
+            </div>
         </div>
+        <div class="pdfbox" id="pdfbox"></div>
     </div>
-    <div class="pdfbox" id="pdfbox"></div>
-</div>
 
-<h4>Console Output:</h4>
-<pre id="console"></pre>
+    <h4>Console Output:</h4>
+    <pre id="console"></pre>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>

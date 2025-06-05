@@ -2,3 +2,4 @@ test/
 wasm-builder/pdftex.wasm/build/
 neopdftex.js
 neopdftex.wasm
+default-assets.zip

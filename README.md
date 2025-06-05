@@ -1,6 +1,6 @@
 # WASMTeX-playground
 
-A web-based LaTeX editor and compiler that allows users to write, edit, and compile LaTeX documents in real-time with PDF preview. Built with Docker for easy deployment and includes support for image uploads and custom LaTeX datasets.
+A web-based LaTeX editor and compiler that allows users to write, edit, and compile LaTeX documents in real-time with PDF preview. Built with Docker for easy deployment and includes support for image uploads, custom LaTeX datasets, and pre-loaded default assets.
 
 ## Inspiration & Enhancements
 
@@ -9,6 +9,7 @@ This work is **inspired by SwiftLaTeX**, an innovative browser-based LaTeX edito
 ### Key Enhancements Over SwiftLaTeX:
 - **Enhanced Scroll Mode / Non Stop Mode**: Improved PDF viewing with better scroll handling and navigation
 - **Enhanced Image Support**: Better integration for .jpg image uploads and processing
+- **Default Asset Management**: Automatic loading of common LaTeX packages, styles, and resources from ZIP archives
 - **Improved Console Output**: More detailed compilation logs and error reporting
 - **Optimized Docker Deployment**: Streamlined containerization for easier deployment and scaling
 
@@ -18,6 +19,7 @@ This work is **inspired by SwiftLaTeX**, an innovative browser-based LaTeX edito
 - **Instant PDF compilation** and preview
 - **Image support** - Upload and include .jpg images in your LaTeX documents
 - **Dataset upload** - Upload entire folders containing .tex and .jpg files
+- **Default Assets System** - Automatically loads common LaTeX packages, styles, and resources
 - **Download compiled PDFs** directly from the browser
 - **Responsive design** with split-screen editor and PDF viewer
 - **Default template** - Start coding immediately without file uploads
@@ -74,6 +76,7 @@ wasmtex-playground/
 ├── PdfTeXEngine.js            # LaTeX compilation engine
 ├── neopdftex.wasm             # Pre-compiled from wasm-builder
 ├── neopdftex.js               # Pre-compiled from wasm-builder
+├── default-assets.zip         # Default LaTeX packages and resources (optional)
 └── README.md
 ```
 
@@ -99,6 +102,54 @@ Hello World!
 
 You can modify this template and compile it directly without uploading any files.
 
+### Default Assets System
+
+The application automatically loads common LaTeX resources from a `default-assets.zip` file when available:
+
+#### What are Default Assets?
+- **LaTeX packages** (.sty files)
+- **Document classes** (.cls files)
+- **Bibliography files** (.bib files)
+- **Images and graphics** (.jpg, .png, .pdf, .eps, .svg)
+- **Additional LaTeX templates** (.tex files)
+
+#### How Default Assets Work:
+1. **Automatic Loading**: When the page loads, the system automatically fetches and extracts `default-assets.zip`
+2. **Status Indicator**: The asset status shows loading progress and success/failure
+3. **Memory Integration**: All assets are loaded into the LaTeX compiler's memory filesystem
+4. **Reload Option**: Use "Reload Default Assets" button to refresh assets
+
+#### Setting Up Default Assets:
+
+1. **Create a ZIP file** named `default-assets.zip` containing your common LaTeX resources:
+   ```
+   default-assets.zip
+   ├── custom.sty          # Custom style files
+   ├── company-logo.png    # Common images
+   ├── references.bib      # Bibliography files
+   ├── template.tex        # Template files
+   └── fonts/
+       └── custom-font.ttf # Font files
+   ```
+
+2. **Place the ZIP file** in the same directory as `index.html`
+
+3. **Access in LaTeX**: All files are available by filename in your LaTeX documents:
+   ```latex
+   \documentclass{article}
+   \usepackage{custom}
+   \includegraphics{company-logo.png}
+   \bibliography{references}
+   \begin{document}
+   Your content here...
+   \end{document}
+   ```
+
+#### Asset Status Indicators:
+- **Loading...**: Assets are being fetched and extracted
+- **✓ Loaded X files from ZIP**: Successfully loaded assets
+- **✗ Failed to load ZIP**: Error occurred (check console for details)
+
 ### Uploading LaTeX Projects
 
 1. **Click "Choose Files"** and select a folder containing:
@@ -113,6 +164,7 @@ You can modify this template and compile it directly without uploading any files
 - **Create Format**: Click "Create Format" to optimize compilation speed
 - **Console Output**: View compilation logs and error messages
 - **Real-time Editing**: Make changes and recompile instantly
+- **Asset Management**: Monitor and reload default assets as needed
 
 ## Docker Services
 
@@ -133,6 +185,7 @@ You can modify this template and compile it directly without uploading any files
   - Lightweight Python HTTP server
   - Read-only volume mounting
   - Auto-restart capability
+  - Serves default-assets.zip when available
 
 ## Development
 
@@ -151,6 +204,26 @@ docker-compose up --build
 
 3. **Make changes** to the HTML/JavaScript files
 4. **Refresh the browser** to see changes (static files are served directly)
+
+### Creating Default Assets
+
+To create your own default assets package:
+
+1. **Create a folder** with your LaTeX resources:
+   ```bash
+   mkdir default-assets
+   cd default-assets
+   # Add your .sty, .cls, .bib, image files, etc.
+   ```
+
+2. **Create the ZIP file**:
+   ```bash
+   zip -r ../default-assets.zip .
+   ```
+
+3. **Place in project root** alongside `index.html`
+
+4. **Test the loading** by opening the application and checking the asset status
 
 ### Modifying the LaTeX Service
 
@@ -173,12 +246,18 @@ docker-compose up --build texlive-ondemand
 **Compilation errors**:
 - Check the console output for detailed error messages
 - Ensure your LaTeX syntax is correct
-- Verify that all referenced images are uploaded
+- Verify that all referenced images are uploaded or available in default assets
 
 **PDF not displaying**:
 - Check browser console for JavaScript errors
 - Ensure the LaTeX compilation was successful (status 0 or 1)
 - Try refreshing the page
+
+**Default assets not loading**:
+- Ensure `default-assets.zip` exists in the same directory as `index.html`
+- Check the asset status indicator for error messages
+- Verify the ZIP file is not corrupted
+- Check browser console for detailed error logs
 
 ### Logs
 
@@ -212,14 +291,21 @@ You can modify the ports in `docker-compose.yml`:
 
 ### LaTeX Packages
 
-The Docker image includes `texlive-full`, which provides comprehensive LaTeX package support. If you need additional packages, modify the Dockerfile in the `texlive-ondemand/` directory.
+The Docker image includes `texlive-full`, which provides comprehensive LaTeX package support. Additional packages can be included via the default assets system or by modifying the Dockerfile in the `texlive-ondemand/` directory.
+
+### Default Assets Configuration
+
+The default assets system can be customized by:
+- Modifying the ZIP file structure and contents
+- Adding more file types to the loading logic
+- Customizing the asset status display
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test thoroughly
+4. Test thoroughly (including default assets functionality)
 5. Submit a pull request
 
 ## Support
@@ -227,6 +313,7 @@ The Docker image includes `texlive-full`, which provides comprehensive LaTeX pac
 For issues and questions:
 - Check the troubleshooting section above
 - Review the console output for error messages
+- Check the asset status indicator for loading issues
 - Create an issue in the repository
 
 ---

@@ -353,7 +353,7 @@ source ./emsdk_env.sh
 ```
 7. Compile PdfTeX
 ```
-cd pdftex.wasm
+cd wasm-builder/pdftex.wasm
 make
 ```
 

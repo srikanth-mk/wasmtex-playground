@@ -241,6 +241,39 @@ If you need to modify the LaTeX compilation service:
 docker-compose up --build texlive-ondemand
 ```
 
+## Compile Engines by yourself
+wasmtex compiles PdfTeX engines into WebAssembly. We recommend the pdfTeX engine as it supports UTF-8 and Opentype fonts out of box. As a result, the locale linebreaking may not function as expected. This issue is easy to fix: we just need to initialize the ICU library with the correct dataset.  If you just need to handle English, the PdfTeX is also a nice option. It is less compilcated, thus faster and less buggy.
+
+1. Get the emsdk repo
+```
+git clone https://github.com/emscripten-core/emsdk.git
+```
+2. Enter that directory
+```
+cd emsdk
+```
+3. Fetch the latest version of the emsdk (not needed the first time you clone)
+```
+git pull
+```
+4. Download and install the 3.1.46 SDK tools.
+```
+./emsdk install 3.1.46
+```
+5. Make the latest" SDK "active" for the current user. (writes .emscripten file)
+```
+./emsdk activate install 3.1.46
+```
+6. Activate PATH and other environment variables in the current terminal
+```
+source ./emsdk_env.sh
+```
+7. Compile PdfTeX
+```
+cd wasm-builder/pdftex.wasm
+make
+```
+
 ## Troubleshooting
 
 ### Common Issues
@@ -323,38 +356,5 @@ For issues and questions:
 - Create an issue in the repository
 
 ---
-
-## Compile Engines by yourself
-wasmtex compiles PdfTeX engines into WebAssembly. We recommend the pdfTeX engine as it supports UTF-8 and Opentype fonts out of box. As a result, the locale linebreaking may not function as expected. This issue is easy to fix: we just need to initialize the ICU library with the correct dataset.  If you just need to handle English, the PdfTeX is also a nice option. It is less compilcated, thus faster and less buggy.
-
-1. Get the emsdk repo
-```
-git clone https://github.com/emscripten-core/emsdk.git
-```
-2. Enter that directory
-```
-cd emsdk
-```
-3. Fetch the latest version of the emsdk (not needed the first time you clone)
-```
-git pull
-```
-4. Download and install the 3.1.46 SDK tools.
-```
-./emsdk install 3.1.46
-```
-5. Make the latest" SDK "active" for the current user. (writes .emscripten file)
-```
-./emsdk activate install 3.1.46
-```
-6. Activate PATH and other environment variables in the current terminal
-```
-source ./emsdk_env.sh
-```
-7. Compile PdfTeX
-```
-cd wasm-builder/pdftex.wasm
-make
-```
 
 **Happy LaTeX editing! 📝✨**

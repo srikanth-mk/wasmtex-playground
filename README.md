@@ -15,7 +15,7 @@ This work is **inspired by SwiftLaTeX**, an innovative browser-based LaTeX edito
 
 ## Demo
 
-![WASMTeX Playground Demo](demo/wasmtex-demo.mp4)
+![WASMTeX Playground Demo](demo/wasmtex-demo.gif)
 
 *Live demonstration of LaTeX editing and compilation in the browser*
 

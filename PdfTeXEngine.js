@@ -46,7 +46,7 @@ var EngineStatus;
     EngineStatus[EngineStatus["Busy"] = 3] = "Busy";
     EngineStatus[EngineStatus["Error"] = 4] = "Error";
 })(EngineStatus = exports.EngineStatus || (exports.EngineStatus = {}));
-var ENGINE_PATH = 'https://github.com/srikanth-mk/wasmtex-playground/releases/tag/v0.0.1/neopdftex.js';
+var ENGINE_PATH = 'tbd-neopdftex.js';
 var CompileResult = /** @class */ (function () {
     function CompileResult() {
         this.pdf = undefined;

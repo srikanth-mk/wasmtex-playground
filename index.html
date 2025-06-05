@@ -23,6 +23,22 @@
             max-height: 400px;
             overflow-y: scroll;
         }
+        .asset-status {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .loading {
+            color: #666;
+        }
+        .success {
+            color: #008000;
+        }
+        .error {
+            color: #ff0000;
+        }
+
     </style>
 </head>
 <body class="code-snippets-visible">
@@ -33,6 +49,11 @@
 <button type="button" onclick="createFormat()">Create Format</button>
 <button type="button" onclick="compile()" id="compilebtn" disabled>Initializing</button>
 <button id="downloadBtn">Download PDF</button>
+<button type="button" onclick="loadDefaultAssets()" id="loadAssetsBtn">Reload Default Assets</button>
+
+<div class="asset-status" id="assetStatus">
+    <strong>Default Assets:</strong> <span id="assetStatusText">Loading...</span>
+</div>
 
 <div class="container" id="demo">
     <div class="editor" id="editor">
@@ -51,6 +72,7 @@ Hello World!
 <pre id="console"></pre>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="PdfTeXEngine.js"></script>
 
 <script>
@@ -58,6 +80,7 @@ Hello World!
     const consoleOutput = document.getElementById("console");
     const pdfbox = document.getElementById("pdfbox");
     const datasetInput = document.getElementById("datasetInput");
+    const assetStatusText = document.getElementById("assetStatusText");
 
     const editor = ace.edit("editor");
     editor.setTheme("ace/theme/Chrome");
@@ -68,8 +91,88 @@ Hello World!
     const globalEn = new PdfTeXEngine();
 
     let uploadedImages = {};
+    let defaultAssets = {};
     let mainTexFileName = "";
 
+    // Auto-load default assets from ZIP file
+    async function loadDefaultAssets() {
+        const statusEl = document.getElementById("assetStatusText");
+        
+        statusEl.textContent = "Loading ZIP archive...";
+        statusEl.className = "loading";
+
+        try {
+            console.log("Fetching default-assets.zip...");
+            const response = await fetch('default-assets.zip');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            console.log("ZIP file fetched, loading...");
+            const zipArrayBuffer = await response.arrayBuffer();
+            const zip = new JSZip();
+            const zipContent = await zip.loadAsync(zipArrayBuffer);
+
+            let loadedCount = 0;
+            defaultAssets = {}; // Clear existing assets
+            
+            console.log("Extracting files from ZIP...");
+            
+            // Extract all files from ZIP
+            for (const [relativePath, file] of Object.entries(zipContent.files)) {
+                if (file.dir) {
+                    console.log(`Skipping directory: ${relativePath}`);
+                    continue; // Skip directories
+                }
+                
+                try {
+                    // Get just the filename (remove folder paths)
+                    const fileName = relativePath.split('/').pop();
+                    
+                    if (fileName.endsWith('.tex') || fileName.endsWith('.sty') || fileName.endsWith('.cls') || fileName.endsWith('.bib')) {
+                        // Text files
+                        const text = await file.async('text');
+                        defaultAssets[fileName] = text;
+                        console.log(`Loaded text file: ${fileName} (${text.length} chars)`);
+                    } else if (fileName.match(/\.(jpg|jpeg|png|gif|pdf|eps|svg)$/i)) {
+                        // Binary files (images, PDFs, etc.)
+                        const arrayBuffer = await file.async('arraybuffer');
+                        defaultAssets[fileName] = new Uint8Array(arrayBuffer);
+                        console.log(`Loaded binary file: ${fileName} (${arrayBuffer.byteLength} bytes)`);
+                    } else {
+                        // Try to load as binary by default
+                        const arrayBuffer = await file.async('arraybuffer');
+                        defaultAssets[fileName] = new Uint8Array(arrayBuffer);
+                        console.log(`Loaded unknown file as binary: ${fileName} (${arrayBuffer.byteLength} bytes)`);
+                    }
+                    
+                    loadedCount++;
+                    
+                } catch (error) {
+                    console.warn(`Failed to extract ${relativePath}:`, error);
+                }
+            }
+
+            // Update status
+            statusEl.textContent = `✓ Loaded ${loadedCount} files from ZIP`;
+            statusEl.className = "success";
+            
+            console.log(`Successfully loaded ${loadedCount} files:`, Object.keys(defaultAssets));
+
+        } catch (error) {
+            console.error('Failed to load ZIP archive:', error);
+            statusEl.textContent = `✗ Failed to load ZIP: ${error.message}`;
+            statusEl.className = "error";
+            
+            // Show helpful error message
+            if (error.message.includes('404')) {
+                statusEl.textContent += " (Make sure default-assets.zip exists in the same folder as index.html)";
+            }
+        }
+    }
+
+    // Handle user file uploads
     datasetInput.addEventListener("change", async function () {
         const files = Array.from(this.files);
         uploadedImages = {};
@@ -83,18 +186,10 @@ Hello World!
                     if (name.endsWith(".tex")) {
                         mainTexFileName = name;
                         editor.setValue(e.target.result);
-                    } else if (name.endsWith(".jpg")) {
-                        const img = new Image();
-                        const objectUrl = URL.createObjectURL(file);
-
-                        img.onload = () => {
-                        const width = img.width;
-                        const height = img.height;
-                        URL.revokeObjectURL(objectUrl); // cleanup
-                        // console.log('name:'+ name, 'Width: '+ width, 'height:' + height);
-                        // resolve({ width, height });
-                        };
+                        console.log(`Loaded main .tex file: ${name}`);
+                    } else if (name.match(/\.(jpg|jpeg|png|gif|pdf|eps|svg)$/i)) {
                         uploadedImages[name] = new Uint8Array(e.target.result);
+                        console.log(`Loaded uploaded image: ${name}`);
                     }
                     resolve();
                 };
@@ -106,19 +201,27 @@ Hello World!
         await Promise.all(readPromises);
 
         if (!mainTexFileName) {
-            alert("No .tex file found.");
+            alert("No .tex file found in uploaded folder.");
+        } else {
+            console.log(`Main .tex file set to: ${mainTexFileName}`);
         }
     });
 
-
     async function init() {
+        console.log("Initializing LaTeX engine...");
         await globalEn.loadEngine();
         compileBtn.innerHTML = "Compile";
         compileBtn.disabled = false;
+        console.log("LaTeX engine ready!");
+        
+        // Auto-load default assets on initialization
+        console.log("Auto-loading default assets...");
+        await loadDefaultAssets();
     }
 
     async function createFormat() {
         try {
+            console.log("Creating LaTeX format...");
             await globalEn.compileFormat();
             console.log("Format created successfully.");
         } catch (error) {
@@ -134,41 +237,63 @@ Hello World!
 
         compileBtn.disabled = true;
         compileBtn.innerHTML = "Compiling...";
+        console.log("Starting compilation...");
 
         // If no file is selected, use default filename and compile the editor content
         const fileNameToUse = mainTexFileName || "main.tex";
         
+        console.log(`Using main file: ${fileNameToUse}`);
         globalEn.writeMemFSFile(fileNameToUse, editor.getValue());
         globalEn.setEngineMainFile(fileNameToUse);
 
+        // Write uploaded images to LaTeX memory filesystem
+        console.log(`Writing ${Object.keys(uploadedImages).length} uploaded files to memory...`);
         for (let [filename, data] of Object.entries(uploadedImages)) {
             globalEn.writeMemFSFile(filename, data);
+            console.log(`  → ${filename}`);
         }
 
+        // Write default assets to LaTeX memory filesystem
+        console.log(`Writing ${Object.keys(defaultAssets).length} default assets to memory...`);
+        for (let [filename, data] of Object.entries(defaultAssets)) {
+            globalEn.writeMemFSFile(filename, data);
+            console.log(`  → ${filename}`);
+        }
+
+        console.log("Running LaTeX compilation...");
         let r = await globalEn.compileLaTeX();
         consoleOutput.innerHTML = r.log;
         compileBtn.innerHTML = "Compile";
         compileBtn.disabled = false;
 
         if (r.status === 0 || r.status === 1) {
+            console.log("Compilation successful! Generating PDF...");
             const pdfblob = new Blob([r.pdf], {type : 'application/pdf'});
             const objectURL = URL.createObjectURL(pdfblob);
+            
+            // Auto-cleanup URL after 30 seconds
             setTimeout(()=>{
                 URL.revokeObjectURL(objectURL);
             }, 30000);
-            console.log(objectURL);
+            
+            console.log("PDF generated:", objectURL);
             pdfbox.innerHTML = `<embed src="${objectURL}" width="100%" height="400px" type="application/pdf">`;
 
-            // Add an event listener to the download button
-            document.getElementById("downloadBtn").addEventListener("click", () => {
+            // Setup download functionality
+            const downloadBtn = document.getElementById("downloadBtn");
+            downloadBtn.onclick = () => {
                 const downloadLink = document.createElement("a");
                 downloadLink.href = objectURL;
-                downloadLink.download = "main.pdf";
+                downloadLink.download = "compiled.pdf";
                 downloadLink.click();
-            });
+                console.log("PDF download triggered");
+            };
+        } else {
+            console.error("Compilation failed with status:", r.status);
         }
     }
 
+    // Initialize everything when page loads
     init();
 </script>
 </body>

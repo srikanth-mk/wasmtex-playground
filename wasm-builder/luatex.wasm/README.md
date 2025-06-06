@@ -9,6 +9,7 @@ Different source structure
 More complex build system
 
 Required Files Structure
+```
 luatex-wasm/
 ├── main.c                    # Main entry point (adapted)
 ├── library.js               # JS library functions
@@ -22,3 +23,4 @@ luatex-wasm/
 │   │   └── libs/luajit/
 ├── kpathsea/                # Path searching library
 └── build/                   # Build output directory
+```

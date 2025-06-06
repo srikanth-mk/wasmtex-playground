@@ -108,10 +108,114 @@
     <div class="container" id="demo">
         <div class="editor" id="editor">
             <div id="editor">
-\documentclass{article}
+\documentclass[twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{geometry}
+
+\geometry{margin=0.75in}
+
+\title{Understanding the Dynamics of Simple Harmonic Motion}
+\author{Srikanth Mohankumar}
+\date{\today}
+
 \begin{document}
-Hello World!
+
+\maketitle
+
+\begin{abstract}
+Simple Harmonic Motion (SHM) is a fundamental concept in classical mechanics with wide applications ranging from pendulums to quantum oscillators. This paper outlines the mathematical formulation of SHM, illustrates the properties with a visual model, provides a numerical table for simulated data, and references classical studies.
+\end{abstract}
+
+\section{Introduction}
+
+Simple Harmonic Motion (SHM) describes oscillatory phenomena where the restoring force is directly proportional to displacement and acts in the opposite direction. It models springs, pendulums, and molecular vibrations. The classic example is a mass attached to a spring obeying Hooke’s Law.
+
+\section{Mathematical Formulation}
+
+Let \( x(t) \) represent the displacement of a particle from equilibrium at time \( t \). The defining differential equation for SHM is:
+
+\begin{equation}
+\frac{d^2x}{dt^2} + \omega^2 x = 0
+\end{equation}
+
+The general solution is:
+
+\begin{equation}
+x(t) = A \cos(\omega t) + B \sin(\omega t)
+\end{equation}
+
+Where \( A \) and \( B \) are determined by initial conditions. The angular frequency \( \omega \) is related to mass \( m \) and spring constant \( k \) by:
+
+\begin{equation}
+\omega = \sqrt{\frac{k}{m}}
+\end{equation}
+
+Velocity \( v(t) \) and acceleration \( a(t) \) follow as:
+
+\begin{equation}
+v(t) = \frac{dx}{dt} = -A\omega \sin(\omega t) + B\omega \cos(\omega t)
+\end{equation}
+
+\begin{equation}
+a(t) = \frac{d^2x}{dt^2} = -\omega^2 x(t)
+\end{equation}
+
+\section{Graphical Representation}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{shm_plot.png}
+\caption{Displacement vs Time for SHM with \( A = 1 \), \( \omega = 2 \pi \).}
+\label{fig:shm}
+\end{figure}
+
+The graph in Figure \ref{fig:shm} shows a perfect sinusoidal wave illustrating the periodicity and symmetry of SHM.
+
+\section{Tabular Data}
+
+Table \ref{tab:data} shows displacement values for a simulated SHM system with \( A = 1 \), \( \omega = \pi \), over time.
+
+\begin{table}[h]
+\centering
+\caption{Displacement over time}
+\begin{tabular}{ccc}
+\toprule
+Time (s) & Displacement (m) & Velocity (m/s) \\
+\midrule
+0.0 & 1.000 & 0.000 \\
+0.5 & 0.000 & -3.142 \\
+1.0 & -1.000 & 0.000 \\
+1.5 & 0.000 & 3.142 \\
+2.0 & 1.000 & 0.000 \\
+\bottomrule
+\end{tabular}
+\label{tab:data}
+\end{table}
+
+\section{Conclusion}
+
+SHM provides critical insights into physical systems that exhibit periodic behavior. The elegant mathematical formulation allows precise prediction of future states of oscillatory systems. Such understanding has implications in mechanical engineering, electronics, and wave theory.
+
+\begin{thebibliography}{9}
+
+\bibitem{halliday}
+D. Halliday, R. Resnick, and J. Walker,
+\textit{Fundamentals of Physics},
+10th ed., Wiley, 2014.
+
+\bibitem{feynman}
+R. Feynman, R. Leighton, and M. Sands,
+\textit{The Feynman Lectures on Physics}, Vol. 1,
+Addison-Wesley, 1963.
+
+\end{thebibliography}
+
 \end{document}
             </div>
         </div>

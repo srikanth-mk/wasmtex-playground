@@ -17,7 +17,6 @@ CXX_LINK     	= 	$(CXX) -o $@ $(CFLAGS)
 
 # LuaTeX core sources
 LUATEX_SOURCES  = 	luatex/source/texk/web2c/luatexdir/luatex.c \
-					luatex/source/texk/web2c/luatexdir/lua/luatex-api.c \
 					luatex/source/texk/web2c/luatexdir/lua/luanode.c \
 					luatex/source/texk/web2c/luatexdir/lua/luatoken.c \
 					luatex/source/texk/web2c/luatexdir/lua/luastuff.c \
@@ -60,12 +59,6 @@ LUA_SOURCES     = 	luatex/source/libs/lua53/lapi.c \
 					luatex/source/libs/lua53/loadlib.c \
 					luatex/source/libs/lua53/linit.c
 
-# Additional LuaTeX libraries
-LUATEX_LIBS     = 	luatex/source/texk/web2c/luatexdir/lua/luafs.c \
-					luatex/source/texk/web2c/luatexdir/lua/luamd5.c \
-					luatex/source/texk/web2c/luatexdir/lua/luasocket.c \
-					luatex/source/texk/web2c/luatexdir/lua/luazlib.c
-
 SUPPORT_SOURCES = 	main.c \
 					kpseemu.c \
 					texfile.c \
@@ -75,7 +68,6 @@ BUILD_DIR    	=	build
 
 LUATEX_OBJECTS  = 	$(LUATEX_SOURCES:%.c=$(BUILD_DIR)/%.o)
 LUA_OBJECTS     = 	$(LUA_SOURCES:%.c=$(BUILD_DIR)/%.o)
-LUATEX_LIB_OBJECTS = $(LUATEX_LIBS:%.c=$(BUILD_DIR)/%.o)
 SUPPORT_OBJECTS = 	$(SUPPORT_SOURCES:%.c=$(BUILD_DIR)/%.o)
 
 _default:
@@ -83,7 +75,7 @@ _default:
 
 all: $(PROJECT_NAME)
 
-$(PROJECT_NAME): $(LUATEX_OBJECTS) $(LUA_OBJECTS) $(LUATEX_LIB_OBJECTS) $(SUPPORT_OBJECTS)
+$(PROJECT_NAME): $(LUATEX_OBJECTS) $(LUA_OBJECTS) $(SUPPORT_OBJECTS)
 	@$(CXX_LINK) $^ --js-library library.js --pre-js pre.js \
 	-s EXPORTED_FUNCTIONS='["_compileLuaLaTeX", "_compileLuaFormat", "_setMainEntry", "_main"]' \
 	-s EXPORTED_RUNTIME_METHODS=["cwrap"] \
